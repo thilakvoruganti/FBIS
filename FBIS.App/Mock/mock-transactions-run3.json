@@ -1,0 +1,28 @@
+[
+  {
+    "transactionId": "T-1001",
+    "cardNumber": "4111111111111234",
+    "locationCode": "NYC-02",
+    "productName": "Coffee",
+    "amount": 5.99,
+    "transactionTime": "2026-03-10T08:00:00Z"
+  },
+
+  {
+    "transactionId": "T-1002",
+    "cardNumber": "4111111111115678",
+    "locationCode": "SF-02",
+    "productName": "Sandwich",
+    "amount": 12.50,
+    "transactionTime": "2026-03-10T09:00:00Z"
+  },
+
+  {
+    "transactionId": "T-1004",
+    "cardNumber": "4111111111118888",
+    "locationCode": "DAL-01",
+    "productName": "Pizza",
+    "amount": 18.25,
+    "transactionTime": "2026-03-10T06:00:00Z"
+  }
+]

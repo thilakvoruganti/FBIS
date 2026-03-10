@@ -1,0 +1,18 @@
+[
+  {
+    "TransactionId": "T-9001",
+    "CardNumber": "4111111111111234",
+    "LocationCode": "DAL-01",
+    "ProductName": "Headphones",
+    "Amount": 99.99,
+    "TransactionTime": "2026-03-10T11:00:00"
+  },
+  {
+    "TransactionId": "T-9002",
+    "CardNumber": "4000000000005678",
+    "LocationCode": "DAL-02",
+    "ProductName": "Monitor",
+    "Amount": 249.50,
+    "TransactionTime": "2026-03-10T11:10:00"
+  }
+]
