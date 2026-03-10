@@ -63,6 +63,7 @@ public class TransactionIngestionService
         }
 
         var snapshotIds = normalizedSnapshot.Keys.ToHashSet(StringComparer.Ordinal);
+        var cutoff = utcNow.AddHours(-24);
 
         await using var dbTransaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
@@ -95,6 +96,52 @@ public class TransactionIngestionService
                 _dbContext.TransactionRevisions.Add(CreateRevision(record.Id, utcNow, changedFields, previousValues));
                 run.Updated++;
             }
+        }
+
+        var revocationCandidates = await _dbContext.TransactionRecords
+            .Where(r => r.TransactionTime >= cutoff && r.TransactionTime <= utcNow && r.Status == TransactionStatus.Active)
+            .ToListAsync(cancellationToken);
+
+        foreach (var record in revocationCandidates)
+        {
+            if (snapshotIds.Contains(record.TransactionId))
+            {
+                continue;
+            }
+
+            var previousStatus = record.Status;
+            record.Status = TransactionStatus.Revoked;
+            record.UpdatedAt = utcNow;
+
+            var changedFields = new[] { "Status" };
+            var previousValues = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["Status"] = previousStatus.ToString(),
+                ["Reason"] = "RevokedMissingFromSnapshot",
+            };
+
+            _dbContext.TransactionRevisions.Add(CreateRevision(record.Id, utcNow, changedFields, previousValues));
+            run.Revoked++;
+        }
+
+        var finalizationCandidates = await _dbContext.TransactionRecords
+            .Where(r => r.TransactionTime < cutoff && r.Status != TransactionStatus.Finalized)
+            .ToListAsync(cancellationToken);
+
+        foreach (var record in finalizationCandidates)
+        {
+            var previousStatus = record.Status;
+            record.Status = TransactionStatus.Finalized;
+            record.UpdatedAt = utcNow;
+
+            var changedFields = new[] { "Status" };
+            var previousValues = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["Status"] = previousStatus.ToString(),
+                ["Reason"] = "FinalizedAfter24Hours",
+            };
+
+            _dbContext.TransactionRevisions.Add(CreateRevision(record.Id, utcNow, changedFields, previousValues));
         }
 
         run.CompletedAt = DateTime.UtcNow;
