@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FBIS.App/FBIS.App.csproj" />
+  <Project Path="FBIS.Tests/FBIS.Tests.csproj" />
+</Solution>
